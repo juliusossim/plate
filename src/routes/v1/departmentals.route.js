@@ -1,38 +1,64 @@
 const express = require('express');
 const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
-const userValidation = require('../../modules/user/user.validation');
-const userController = require('../../modules/user/user.controller');
+const departmentalValidation = require('../../modules/departmental/departmental.validation');
+const departmentalController = require('../../modules/departmental/departmental.controller');
 
 const router = express.Router();
 
 router
   .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+  .post(
+    auth('manageDepartmentals'),
+    validate(departmentalValidation.createDepartmental),
+    departmentalController.createDepartmental
+  )
+  .get(auth('getDepartmentals'), validate(departmentalValidation.getDepartmentals), departmentalController.getDepartmentals);
 
 router
+  .route('/:id')
+  .get(auth('getDepartmentals'), validate(departmentalValidation.getDepartmental), departmentalController.getDepartmental)
+  .patch(
+    auth('manageDepartmentals'),
+    validate(departmentalValidation.updateDepartmental),
+    departmentalController.updateDepartmental
+  )
+  .delete(
+    auth('manageDepartmentals'),
+    validate(departmentalValidation.deleteDepartmental),
+    departmentalController.deleteDepartmental
+  );
+router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+  .get(
+    auth('getDepartmentals'),
+    validate(departmentalValidation.getDepartmental),
+    departmentalController.getDepartmentalByUserId
+  );
+router
+  .route('/:matric')
+  .get(
+    auth('getDepartmentals'),
+    validate(departmentalValidation.getDepartmental),
+    departmentalController.getDepartmentalByMatric
+  );
 
 module.exports = router;
 
 /**
  * @swagger
  * tags:
- *   name: Users
- *   description: User management and retrieval
+ *   name: Departmentals
+ *   description: Departmental management and retrieval
  */
 
 /**
  * @swagger
- * /users:
+ * /departmentals:
  *   post:
- *     summary: Create a user
- *     description: Only admins can create other users.
- *     tags: [Users]
+ *     summary: Create a departmental
+ *     description: Only admins can create other departmentals.
+ *     tags: [Departmentals]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -60,19 +86,19 @@ module.exports = router;
  *                 description: At least one number and one letter
  *               role:
  *                  type: string
- *                  enum: [user, admin]
+ *                  enum: [departmental, admin]
  *             example:
  *               name: fake name
  *               email: fake@example.com
  *               password: password1
- *               role: user
+ *               role: departmental
  *     responses:
  *       "201":
  *         description: Created
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Departmental'
  *       "400":
  *         $ref: '#/components/responses/DuplicateEmail'
  *       "401":
@@ -81,9 +107,9 @@ module.exports = router;
  *         $ref: '#/components/responses/Forbidden'
  *
  *   get:
- *     summary: Get all users
- *     description: Only admins can retrieve all users.
- *     tags: [Users]
+ *     summary: Get all departmentals
+ *     description: Only admins can retrieve all departmentals.
+ *     tags: [Departmentals]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -91,12 +117,12 @@ module.exports = router;
  *         name: name
  *         schema:
  *           type: string
- *         description: User name
+ *         description: Departmental name
  *       - in: query
  *         name: role
  *         schema:
  *           type: string
- *         description: User role
+ *         description: Departmental role
  *       - in: query
  *         name: sortBy
  *         schema:
@@ -108,7 +134,7 @@ module.exports = router;
  *           type: integer
  *           minimum: 1
  *         default: 10
- *         description: Maximum number of users
+ *         description: Maximum number of departmentals
  *       - in: query
  *         name: page
  *         schema:
@@ -127,7 +153,7 @@ module.exports = router;
  *                 results:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/User'
+ *                     $ref: '#/components/schemas/Departmental'
  *                 page:
  *                   type: integer
  *                   example: 1
@@ -148,11 +174,11 @@ module.exports = router;
 
 /**
  * @swagger
- * /users/{id}:
+ * /departmentals/{id}:
  *   get:
- *     summary: Get a user
- *     description: Logged in users can fetch only their own user information. Only admins can fetch other users.
- *     tags: [Users]
+ *     summary: Get a departmental
+ *     description: Logged in departmentals can fetch only their own departmental information. Only admins can fetch other departmentals.
+ *     tags: [Departmentals]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -161,14 +187,14 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Departmental id
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Departmental'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
@@ -177,9 +203,9 @@ module.exports = router;
  *         $ref: '#/components/responses/NotFound'
  *
  *   patch:
- *     summary: Update a user
- *     description: Logged in users can only update their own information. Only admins can update other users.
- *     tags: [Users]
+ *     summary: Update a departmental
+ *     description: Logged in departmentals can only update their own information. Only admins can update other departmentals.
+ *     tags: [Departmentals]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -188,7 +214,7 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Departmental id
  *     requestBody:
  *       required: true
  *       content:
@@ -217,7 +243,7 @@ module.exports = router;
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Departmental'
  *       "400":
  *         $ref: '#/components/responses/DuplicateEmail'
  *       "401":
@@ -228,9 +254,9 @@ module.exports = router;
  *         $ref: '#/components/responses/NotFound'
  *
  *   delete:
- *     summary: Delete a user
- *     description: Logged in users can delete only themselves. Only admins can delete other users.
- *     tags: [Users]
+ *     summary: Delete a departmental
+ *     description: Logged in departmentals can delete only themselves. Only admins can delete other departmentals.
+ *     tags: [Departmentals]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -239,7 +265,7 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Departmental id
  *     responses:
  *       "200":
  *         description: No content

@@ -37,6 +37,9 @@ app.use(mongoSanitize());
 // gzip compression
 app.use(compression());
 
+// use public path for file upload
+app.use(express.static(`${__dirname}/public`));
+
 // enable cors
 app.use(cors());
 app.options('*', cors());

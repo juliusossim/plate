@@ -13,8 +13,8 @@ const setupTestDB = require('../utils/setupTestDB');
 const { User, Token } = require('../../src/models');
 const { roleRights } = require('../../src/config/roles');
 const { tokenTypes } = require('../../src/config/tokens');
-const { userOne, admin, insertUsers } = require('../fixtures/user.fixture');
-const { userOneAccessToken, adminAccessToken } = require('../fixtures/token.fixture');
+const { userOne, admin, insertUsers } = require('../../src/modules/user/tests/user.fixture');
+const { userOneAccessToken, adminAccessToken } = require('../../src/modules/token/token.fixture');
 
 setupTestDB();
 

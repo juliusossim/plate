@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const { toJSON, paginate } = require('./plugins');
-const { roles } = require('../config/roles');
+const { toJSON, paginate } = require('../../plugins');
+const { roles, deptartments } = require('../../config/roles');
 
 const userSchema = mongoose.Schema(
   {
@@ -10,6 +10,28 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    level: {
+      type: Number,
+      required: true,
+    },
+    admissionYear: {
+      type: String,
+      required: true,
+    },
+    dept: {
+      type: String,
+      enum: deptartments,
+    },
+    unit: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: false,
+      trim: false,
     },
     email: {
       type: String,
@@ -35,10 +57,65 @@ const userSchema = mongoose.Schema(
       },
       private: true, // used by the toJSON plugin
     },
+    matric: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 8,
+      validate(value) {
+        if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
+          throw new Error('Registration number must contain at least one letter and one number');
+        }
+      },
+      private: true, // used by the toJSON plugin
+    },
+    regNumber: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 8,
+      validate(value) {
+        if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
+          throw new Error('Registration number must contain at least one letter and one number');
+        }
+      },
+      private: true, // used by the toJSON plugin
+    },
+    gender: {
+      type: String,
+      // required: false,
+      lowercase: true,
+    },
+    nationality: {
+      type: String,
+      lowercase: true,
+    },
+    stateOrigin: {
+      type: String,
+      // required: false,
+      lowercase: true,
+    },
+    dateOfBirth: {
+      type: Date,
+    },
+    passport: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    onCampus: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       enum: roles,
-      default: 'user',
+      default: 'student',
     },
     isEmailVerified: {
       type: Boolean,
